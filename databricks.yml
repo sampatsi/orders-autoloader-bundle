@@ -1,0 +1,50 @@
+bundle:
+  name: orders_autoloader
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog for all tables and volumes
+    default: dbx_siva_dev
+  schema:
+    description: Target schema for the bronze tables (differs per target)
+    default: bronze_dev
+  landing_path:
+    description: Folder in a UC volume where partner JSON files land
+    default: /Volumes/dbx_siva_dev/bronze/landing/orders
+  checkpoint_root:
+    description: Folder in a UC volume for Auto Loader schema and checkpoint files
+    default: /Volumes/dbx_siva_dev/bronze/checkpoints/bundle
+
+targets:
+  dev:
+    # development mode: resources get a [dev <you>] prefix, schedules are paused,
+    # pipelines run in development mode
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405613721424427.7.azuredatabricks.net
+      profile: dev   # e.g. https://adb-1234567890123456.7.azuredatabricks.net
+    variables:
+      schema: bronze_dev
+      landing_path: /Volumes/dbx_siva_dev/bronze_dev/landing/orders
+      checkpoint_root: /Volumes/dbx_siva_dev/bronze_dev/checkpoints/bundle
+
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-7405613721424427.7.azuredatabricks.net
+      profile: dev
+      root_path: /Workspace/Users/s_siva98@hotmail.com/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      schema: bronze_prod
+      landing_path: /Volumes/dbx_siva_dev/bronze_prod/landing/orders
+      checkpoint_root: /Volumes/dbx_siva_dev/bronze_prod/checkpoints/bundle
+    permissions:
+      - user_name: s_siva98@hotmail.com
+        level: CAN_MANAGE
+    # If `databricks bundle validate -t prod` asks for it, uncomment and set your user:
+    # run_as:
+    #   user_name: <your-user-name>

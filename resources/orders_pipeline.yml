@@ -1,0 +1,12 @@
+resources:
+  pipelines:
+    orders_pipeline:
+      name: orders_bronze_pipeline_${bundle.target}
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      serverless: true
+      configuration:
+        landing_path: ${var.landing_path}
+      libraries:
+        - file:
+            path: ../src/orders_pipeline.sql

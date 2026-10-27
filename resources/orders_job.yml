@@ -1,0 +1,19 @@
+resources:
+  jobs:
+    orders_job:
+      name: orders_autoloader_job_${bundle.target}
+      tasks:
+        - task_key: ingest_orders
+          notebook_task:
+            notebook_path: ../src/autoloader_job.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              landing_path: ${var.landing_path}
+              checkpoint_root: ${var.checkpoint_root}/${bundle.target}
+          # Task-level retry: this is what recovers the addNewColumns stop-and-restart
+          max_retries: 2
+          min_retry_interval_millis: 30000
+          retry_on_timeout: false
+      # No cluster block: the notebook task runs on serverless compute.
+      # If your workspace needs it, add an `environments` block (see README).
